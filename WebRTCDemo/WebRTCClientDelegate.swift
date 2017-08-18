@@ -26,11 +26,3 @@ public protocol WebRTCClientDelegate: NSObjectProtocol {
     func didRemoveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack)
 }
 
-public extension WebRTCClientDelegate {
-    func didChangeState(_ client:WebRTCClient, state: WebRTCClientClientState){}
-    func didChangeConnectionState(_ client:WebRTCClient, state: RTCIceConnectionState){}
-    func didCreateLocalCapturer(_ client:WebRTCClient, localCapturer:RTCIceConnectionState){}
-    func didReceiveLocalVideoTrack(_ client:WebRTCClient, localVideoTrack: RTCVideoTrack){}
-    func didReceiveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack){}
-    func didRemoveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack){}
-}

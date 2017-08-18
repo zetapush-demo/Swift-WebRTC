@@ -31,7 +31,9 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     @IBOutlet weak var remoteViewRightConstraint: NSLayoutConstraint!
     
     
-    let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "xWLdA1yb")
+    //let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "dJ7m3bQn")
+    let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "JMrH4ScI")
+    
     var zetaPushMacroService: ZetaPushMacroService?
     
     var webRTCClient: WebRTCClient?
@@ -54,10 +56,10 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
         self.remoteView?.delegate=self
         self.localView?.delegate=self
         //zetaPushClient.setLogLevel(logLevel: .verbose)
-        zetaPushClient.setCredentials(login: "demo", password:"demo")
+        zetaPushClient.setCredentials(login: "android_test", password:"password")
         zetaPushClient.onSuccessfulHandshake = onSuccessfulHandshake
-        zetaPushMacroService = ZetaPushMacroService(zetaPushClient)
-        zetaPushMacroService?.onMacroError = onMacroError
+        // zetaPushMacroService = ZetaPushMacroService(zetaPushClient)
+        // zetaPushMacroService?.onMacroError = onMacroError
         
         webRTCClient = WebRTCClient(zetaPushClient: zetaPushClient, macroDeploymentId: "macro_0")
         webRTCClient?.delegate = self
@@ -65,8 +67,9 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
         zetaPushClient.setServerUrl("http://demo-2.zpush.io/str/strd")
         zetaPushClient.connect()
         
-        
+        /*
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.orientationChanged(_:)), name: NSNotification.Name(rawValue: "UIDeviceOrientationDidChangeNotification"), object: nil)
+        */
         
         let device = UIDevice.string(for: UIDevice.deviceType())
         
@@ -115,7 +118,7 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     }
     
     func didReceiveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack){
-        print("didReceiveRemoteVideoTrack")
+        print(":) :) :) :) :) didReceiveRemoteVideoTrack")
         /*
         self.remoteVideoTrack?.remove(self.remoteView)
         self.remoteView?.renderFrame(nil)
@@ -135,6 +138,11 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     
     
     func didRemoveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack){
+        self.remoteVideoTrack?.remove(self.remoteView)
+        self.remoteVideoTrack = nil
+        self.remoteView?.renderFrame(nil)
+        
+        
         print("didRemoveVideoTrack")
     }
     
@@ -145,7 +153,7 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     }
     
     @IBAction func AudioButtonPressed(_ sender: Any) {
-        webRTCClient?.joinRoom(roomName: "mikael")
+        webRTCClient?.callLeoconseiller()
     }
     
     @IBAction func VideoButtonPressed(_ sender: Any) {
@@ -153,7 +161,7 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     }
     
     @IBAction func HangupButtonPressed(_ sender: Any) {
-        webRTCClient?.closeRoom()
+        webRTCClient?.stopVisio()
     }
     
     func videoView(_ videoView: RTCEAGLVideoView, didChangeVideoSize size: CGSize) {

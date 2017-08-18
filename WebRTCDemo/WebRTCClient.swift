@@ -10,38 +10,52 @@ import ZetaPushSwift
 import WebRTC
 
 // Class used to Map the ZetaPush listener inheritance to a delegate protocol
-open class WebRTCAPIListenerDelegate: WebRTCAsyncApiListener{
+open class WebRTCAPIListenerDelegate: DeployAsyncApiListener{
     
     open weak var delegate: WebRTCAPIDelegate?
     
-    open override func sendMessage(_ parameter: sendMessageCompletion){
+    open override func sendMessage(_ parameter: Webrtc.SendMessageCompletion){
         print("sendMessage")
     }
     
-    open override func addGroupMember(_ parameter: addGroupMemberCompletion){
-        self.delegate?.addGroupMember(_client: self.clientHelper!, parameter: parameter)
+    open override func sendRoomMessageToMember(_ parameter: Room.SendRoomMessageToMemberCompletion){
+        self.delegate?.sendRoomMessageToMember(_client: self.clientHelper!, parameter)
     }
     
-    open override func addRoomMember(_ parameter: addRoomMemberCompletion){
-        self.delegate?.addRoomMember(_client: self.clientHelper!, parameter: parameter)
-    }
-
-    open override func sendRoomMessageToMember(_ parameter: sendRoomMessageToMemberCompletion){
-        self.delegate?.sendRoomMessageToMember(_client: self.clientHelper!, parameter: parameter)
-    }
-
-    open override func addRoomMessage(_ parameter: addRoomMessageCompletion){
-        self.delegate?.addRoomMessage(_client: self.clientHelper!, parameter: parameter)
+    open override func createRoomMemberInvitation(_ parameter: Room.CreateRoomMemberInvitationCompletion){
+        self.delegate?.createRoomMemberInvitation(_client: self.clientHelper!, parameter)
     }
     
-    open override func joinPublicRoom(_ parameter: joinPublicRoomCompletion) {
-        self.delegate?.joinPublicRoom(_client: self.clientHelper!, parameter: parameter)
-        print("joinPublicRoom")
+    open override func refuseCall(_ parameter: Webrtc.RefuseCallCompletion){
+        self.delegate?.refuseCall(_client: self.clientHelper!, parameter)
     }
     
-    open override func leavePublicRoom(_ parameter: leavePublicRoomCompletion) {
-        self.delegate?.leavePublicRoom(_client: self.clientHelper!, parameter: parameter)
-        print("leavePublicRoom")
+    open override func joinRoom(_ parameter: Webrtc.JoinRoomCompletion){
+        self.delegate?.joinRoom(_client: self.clientHelper!, parameter)
+    }
+    
+    open override func leaveRoom(_ parameter: Webrtc.LeaveRoomCompletion){
+        self.delegate?.leaveRoom(_client: self.clientHelper!, parameter)
+    }
+    
+    open override func replyToCall(_ parameter: Webrtc.ReplyToCallCompletion){
+        self.delegate?.replyToCall(_client: self.clientHelper!, parameter)
+    }
+    
+    open override func changeCameraOrientation(_ parameter: EmptyCompletion){
+        self.delegate?.changeCameraOrientation(_client: self.clientHelper!, parameter)
+    }
+    
+    open override func terminateWebRtcCall(_ parameter: EmptyCompletion){
+        self.delegate?.terminateWebRtcCall(_client: self.clientHelper!, parameter)
+    }
+    
+    open override func closeRoom(_ parameter: Webrtc.CloseRoomCompletion){
+        self.delegate?.closeRoom(_client: self.clientHelper!, parameter)
+    }
+    
+    open override func captureContractAttachment(_ parameter: Event.CaptureContractAttachmentCompletion){
+        self.delegate?.captureContractAttachment(_client: self.clientHelper!, parameter)
     }
 
 }
@@ -53,8 +67,8 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     
     var zetaPushClient: ClientHelper?
     var webRTCAPIListenerDelegate: WebRTCAPIListenerDelegate?
-    var webRTCAsyncApi: WebRTCAsyncApi?
-    var webRTCPromiseApi: WebRTCPromiseApi?
+    var webRTCAsyncApi: DeployAsyncApi?
+    var webRTCPromiseApi: DeployPromiseApi?
     
     let VIDEO_TRACK_ID = "ZetaPushVIDEO"
     let AUDIO_TRACK_ID = "ZetaPushAUDIO"
@@ -63,11 +77,14 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     var factory: RTCPeerConnectionFactory?
     var peerConnection: RTCPeerConnection?
     
-    var localVideoTrack: RTCVideoTrack?
+    private var localVideoTrack: RTCVideoTrack?
+    private var localAudioTrack: RTCAudioTrack?
+    private var remoteVideoTrack: RTCVideoTrack?
+    private var videoSender: RTCRtpSender?
+    private var audioSender: RTCRtpSender?
     
-    var localVideoSize:CGSize?
-    var remoteVideoSize:CGSize?
-    var isZoom:Bool = false //used for double tap remote view
+    var videoCaptureSession: AVCaptureSession?
+    
     var shouldUseMediaControle = false
     var state: WebRTCClientClientState?
     
@@ -80,60 +97,47 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     var currentRoomId: String = ""
     var currentRemoteUserId: String = ""
     
+    private static let signalingQueue = DispatchQueue(label: "CallZetaPushServiceQueue")
+    
     public init(zetaPushClient: ClientHelper, macroDeploymentId: String){
 
         self.zetaPushClient = zetaPushClient
         
         webRTCAPIListenerDelegate = WebRTCAPIListenerDelegate(zetaPushClient)
         
-        
-        webRTCAsyncApi = WebRTCAsyncApi(zetaPushClient)
-        webRTCPromiseApi = WebRTCPromiseApi(zetaPushClient)
-        
+        webRTCAsyncApi = DeployAsyncApi(zetaPushClient)
+        webRTCPromiseApi = DeployPromiseApi(zetaPushClient)
         
         factory = RTCPeerConnectionFactory()
-        
         
         super.init()
         webRTCAPIListenerDelegate?.delegate = self
         
     }
     
-    // Create a new room with a roomName
-    // the created room is public ie everyone can join if he knows the roomName
-    func createRoom(roomName: String){
+    // MARK: - LeoCare
+    
+    func callLeoconseiller(){
         
-        let jsonData = [
-            "publicRoom": [ "roomName": roomName]
-        ]
-        guard let _createPublicRoomInput = createPublicRoomInput(json: jsonData) else {
-            print ("error in data")
-            return
-        }
-        
-        webRTCPromiseApi?.createPublicRoom(parameters: _createPublicRoomInput)
-            .then { result -> Void in
-                
-                print ("createPublicRoom", result.result.room!)
-                
-            }
-            .catch { error in
-                print ("createPublicRoom error", error)
-        }
+        webRTCAsyncApi?.callLeoconseiller()
     }
     
-    // Join an existing public room
-    func joinRoom(roomName: String){
+    // CreateRoomMemberInvitation, j'obtiens l'id de la Room
+    // Je fais un joinRoom 
+    
+    public func createRoomMemberInvitation(_client: ClientHelper, _ parameter: Room.CreateRoomMemberInvitationCompletion){
         
+        guard let roomName = parameter.result.room?.name else {return}
+    
+        debugPrint(" = = = = = = = = = createRoomMemberInvitation", roomName)
         let jsonData = [
-            "publicRoom": [ "roomName": roomName]
+            "webrtcRoom": ["roomName": roomName]
         ]
-        guard let _joinPublicRoomInput = joinPublicRoomInput(json: jsonData) else {
+        guard let _joinRoomInput = Webrtc.JoinRoomInput(json: jsonData) else {
             print ("error in data")
             return
         }
-        
-        webRTCPromiseApi?.joinPublicRoom(parameters: _joinPublicRoomInput)
+        webRTCPromiseApi?.joinRoom(parameters: _joinRoomInput)
             .then { result -> Void in
                 
                 print ("joinPublicRoom", result)
@@ -143,29 +147,32 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
             .catch { error in
                 print ("joinPublicRoom error", error)
         }
-    }
-    
-    // Close room
-    func closeRoom(){
-        self.disconnect()
-    }
-    
-    
-    func startVisio(){
         
+    }
+    
+    // Start Visio - Automatic start video and audio streams
+    public func startVisio(){
         self.startSignalingIfReady()
+    }
+    
+    // End Visio
+    public func stopVisio(){
+        WebRTCClient.signalingQueue.async {
+            self.disconnect()
+            self.terminateInternal()
+        }
     }
     
     private func disconnect(){
         let jsonData = [
-            "publicRoom": [ "roomName": self.currentRoom]
+            "webrtcRoom": [ "roomName": self.currentRoom]
         ]
-        guard let _leavePublicRoomInput = leavePublicRoomInput(json: jsonData) else {
+        guard let _leaveRoomInput = Webrtc.LeaveRoomInput(json: jsonData) else {
             print ("error in data")
             return
         }
         
-        webRTCPromiseApi?.leavePublicRoom(parameters: _leavePublicRoomInput)
+        webRTCPromiseApi?.leaveRoom(parameters: _leaveRoomInput)
             .then { result -> Void in
                 
                 print ("leavePublicRoom", result)
@@ -178,14 +185,16 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         currentRoom = ""
         currentRoomId = ""
         currentRemoteUserId = ""
-        localVideoTrack = nil
         
-        self.factory?.stopAecDump()
-        self.peerConnection?.stopRtcEventLog()
+        self.delegate?.didRemoveRemoteVideoTrack(self, remoteVideoTrack: self.localVideoTrack!)
+        //self.factory?.stopAecDump()
+        //self.peerConnection?.stopRtcEventLog()
         
         
         self.delegate?.didChangeState(self, state: WebRTCClientClientState.webRTCClientStateDisconnected)
     }
+    
+    // MARK: - ZetaPush
     
     /** ZetaPush */
     
@@ -194,8 +203,9 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         print("onMacroError", zetaPushMacroService, zetaPushMacroError)
     }
     
-    func createOffer(destination: String){
+    private func createOffer(destination: String){
         
+        WebRTCClient.signalingQueue.async {
         self.peerConnection?.offer(for: self.defaultOfferConstraints(), completionHandler: { (sdp, error) in
             // TODO Add prefered H264 codec
             let sdpString: String = (sdp?.sdp)!
@@ -203,34 +213,36 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
             let sdpAnswer = ["type": "offer" as NSObject, "sdp": sdpString as NSObject]
 
             let jsonData = [
-                "publicRoom": [ "roomName": self.currentRoom],
+                "webrtcRoom": [ "roomName": self.currentRoom],
                 "member": destination,
                 "metadata": ["type":"offer"],
                 "value": sdpAnswer
             ] as [String : Any]
             
-            //print("createOffer", jsonData)
-            
-            guard let _sendMessageInput = sendMessageInput(json: jsonData) else {
+            guard let _sendMessageInput = Webrtc.SendMessageInput(json: jsonData) else {
                 print ("data input problem")
                 return
             }
             self.webRTCPromiseApi?.sendMessage(parameters: _sendMessageInput )
                 .then { result -> Void in
                     
-                    print ("sendMessage sdp offer", result)
+                    print ("=====> sendMessage sdp offer", result)
                     
                 }
                 .catch { error in
                     print ("sendMessage sdp offer error", error)
             }
+            
+            self.peerConnection?.setLocalDescription(sdp!)
 
         })
-        
+        }
     }
     
-    func createAnswer(destination: String){
-        
+    //MARK: ZetaPush Delegate
+    
+    private func createAnswer(destination: String){
+        WebRTCClient.signalingQueue.async {
         self.peerConnection?.answer(for: self.defaultOfferConstraints(), completionHandler: { (sdp, error) in
             
             
@@ -241,16 +253,17 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
             // TODO Add prefered H264 codec
             let sdpString: String = (sdp?.sdp)!
             
+            
             let sdpAnswer = ["type": "answer" as NSObject, "sdp": sdpString as NSObject]
             
             let jsonData = [
-                "publicRoom": [ "roomName": self.currentRoom],
+                "webrtcRoom": [ "roomName": self.currentRoom],
                 "member": destination,
                 "metadata": ["type":"answer"],
                 "value": sdpAnswer
                 ] as [String : Any]
             
-            guard let _sendMessageInput = sendMessageInput(json: jsonData) else {
+            guard let _sendMessageInput = Webrtc.SendMessageInput(json: jsonData) else {
                 print ("data input problem")
                 return
             }
@@ -258,7 +271,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
             self.webRTCPromiseApi?.sendMessage(parameters: _sendMessageInput )
                 .then { result -> Void in
                     
-                    print ("sendMessage sdp answer", result)
+                    print ("=====> sendMessage sdp answer", result)
                     
                 }
                 .catch { error in
@@ -266,25 +279,17 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
             }
             
         })
+        }
+    }
+    
+    public func sendRoomMessageToMember(_client: ClientHelper, _ parameter: Room.SendRoomMessageToMemberCompletion){
         
-    }
-    
-    public func addGroupMember(_client: ClientHelper, parameter: addGroupMemberCompletion){
-        print("addGroupMember", parameter)
-    }
-    public func addRoomMember(_client: ClientHelper, parameter: addRoomMemberCompletion){
-        print("addRoomMember", parameter)
-    }
-    public func sendRoomMessageToMember(_client: ClientHelper, parameter: sendRoomMessageToMemberCompletion){
-        print("sendRoomMessageToMember")
-    
         let meta = parameter.result.message?.metadata
         let sender = parameter.result.message?.author
-        let roomId = parameter.result.container
-        print("M M M Meta Reveived meta", meta!)
-        print("Received sender", sender!)
-        print("Received from Room", roomId!)
+        //let roomId = parameter.result.container
+
         let userId = self.zetaPushClient?.getUserId()
+        self.currentRemoteUserId = sender!
         print("userId", userId!)
         
         var metaType = ""
@@ -294,37 +299,29 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         
         switch metaType {
         case "offer":
+            
             // Add the remote description
             let value = parameter.result.message?.value
             var sdpValue = ""
-            var sdpType: RTCSdpType = RTCSdpType.offer
-            var sdpTypeStr = ""
+            let sdpType: RTCSdpType = RTCSdpType.offer
+            
+            //var sdpTypeStr = ""
             if value?.object(forKey: "sdp") != nil{
                 sdpValue = value?.value(forKey: "sdp") as! String
             }
-            if value?.object(forKey: "type") != nil{
-                sdpTypeStr = value?.value(forKey: "type") as! String
+            WebRTCClient.signalingQueue.async {
+                self.peerConnection?.setRemoteDescription(RTCSessionDescription(type: sdpType, sdp: sdpValue), completionHandler: { (error) in
+                
+                    print("Fin SDP")
+                
+                    // Create an offer
+                    self.createAnswer(destination: sender!)
+                
+                })
             }
-            switch sdpTypeStr {
-            case "offer":
-                sdpType = RTCSdpType.offer
-            case "answer":
-                sdpType = RTCSdpType.answer
-            default:
-                print("default offer")
-                sdpType = RTCSdpType.offer
-            }
-            self.peerConnection?.setRemoteDescription(RTCSessionDescription(type: sdpType, sdp: sdpValue), completionHandler: { (error) in
-                
-                print("Fin SDP")
-                
-                // Create an offer
-                self.createAnswer(destination: sender!)
-                
-            })
-            
         case "answer":
             // Add the remote description
+            
             let value = parameter.result.message?.value
             var sdpValue = ""
             var sdpType: RTCSdpType = RTCSdpType.answer
@@ -342,13 +339,16 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
                 sdpType = RTCSdpType.answer
             default:
                 print("default offer")
-                sdpType = RTCSdpType.offer
+                sdpType = RTCSdpType.answer
             }
-            self.peerConnection?.setRemoteDescription(RTCSessionDescription(type: sdpType, sdp: sdpValue), completionHandler: { (error) in
+            WebRTCClient.signalingQueue.async {
+                self.peerConnection?.setRemoteDescription(RTCSessionDescription(type: sdpType, sdp: sdpValue), completionHandler: { (error) in
                 //Erreur de descriptioin
-                print("fin SDP")
-            })
+                    print("fin SDP")
+                })
+            }
         case "icecandidate":
+            print("<====== Receive icecandidate")
             // Add the remote description
             let value = parameter.result.message?.value
             var iceCandidate = ""
@@ -367,36 +367,74 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
                 if iceDict.object(forKey: "sdpMid") != nil{
                     sdpMid = iceDict.value(forKey: "sdpMid") as! String
                 }
-                
-                self.peerConnection?.add(RTCIceCandidate(sdp: iceCandidate, sdpMLineIndex: sdpMLineIndex, sdpMid: sdpMid))
+                print("<====== Receive icecandidate sdpMid ", sdpMid)
+                WebRTCClient.signalingQueue.async {
+                    self.peerConnection?.add(RTCIceCandidate(sdp: iceCandidate, sdpMLineIndex: sdpMLineIndex, sdpMid: sdpMid))
+                }
             }
             
         default:
             print ("crazy message")
         }
         
-        
     }
-    public func addRoomMessage(_client: ClientHelper, parameter: addRoomMessageCompletion){
-        print("addRoomMessage", parameter)
-    }
-    public func joinPublicRoom(_client: ClientHelper, parameter: joinPublicRoomCompletion){
-        print("= = = = = joinPublicRoom", parameter)
+    
+    public func refuseCall(_client: ClientHelper, _ parameter: Webrtc.RefuseCallCompletion){
         
+        // Coder l'appel refusé de la part d'un LeoConseiller
+        debugPrint("refuseCall")
+    }
+    
+    public func joinRoom(_client: ClientHelper, _ parameter: Webrtc.JoinRoomCompletion){
+        // Rien à faire
         let userId = self.zetaPushClient?.getUserId()
         if parameter.result.member != userId {
+            self.currentRemoteUserId = parameter.result.member!
             createOffer(destination: parameter.result.member!)
         } else {
             self.currentRoomId = parameter.result.id!
         }
-        
     }
     
-    public func leavePublicRoom(_client: ClientHelper, parameter: leavePublicRoomCompletion){
-        print("leavePublicRoom", parameter)
+    public func leaveRoom(_client: ClientHelper, _ parameter: Webrtc.LeaveRoomCompletion){
+        debugPrint("leaveRoom")
         
         self.delegate?.didChangeState(self, state: WebRTCClientClientState.webRTCClientStateDisconnected)
     }
+    
+    public func replyToCall(_client: ClientHelper, _ parameter: Webrtc.ReplyToCallCompletion){
+        
+        // TODO - Coder l'affichage d'un appel entrant.
+        debugPrint("replyToCall")
+    }
+    
+    public func changeCameraOrientation(_client: ClientHelper, _ parameter: EmptyCompletion){
+        
+        // TODO - Coder le changement de camera
+        debugPrint("ChangeCameraOrientation")
+    }
+    
+    public func terminateWebRtcCall(_client: ClientHelper, _ parameter: EmptyCompletion){
+        
+        // Rien à faire
+        debugPrint("terminateWebRtcCall")
+    }
+    
+    public func closeRoom(_client: ClientHelper, _ parameter: Webrtc.CloseRoomCompletion){
+        
+        // Rien à faire
+        debugPrint("closeRoom")
+        self.disconnect()
+    }
+    
+    public func captureContractAttachment(_client: ClientHelper, _ parameter: Event.CaptureContractAttachmentCompletion){
+        
+        // TODO - Coder la prise de photo ici
+        
+        debugPrint("captureContractAttachment")
+    }
+    
+    // MARK: - WebRTC
     
     /** WebRTC */
     
@@ -409,12 +447,19 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         self.state = WebRTCClientClientState.webRTCClientStateConnected
         let constraints = defaultPeerConnectionConstraints()
         let config = RTCConfiguration.init()
+        //, "turn:turn.zpush.io:443?transport=udp", "turn:turn.zpush.io:443?transport=tcp"
+        let el = RTCIceServer(urlStrings: ["stun:turn.zpush.io:443"], username: "lesateliers", credential: "c4878XzgQ54NhjsSNX")
+        let el2 = RTCIceServer(urlStrings: ["turn:turn.zpush.io:443?transport=udp"], username: "lesateliers", credential: "c4878XzgQ54NhjsSNX")
+        let el3 = RTCIceServer(urlStrings: ["turn:turn.zpush.io:443?transport=tcp"], username: "lesateliers", credential: "c4878XzgQ54NhjsSNX")
         
+        self.rtcIceServers.append(el)
+        self.rtcIceServers.append(el2)
+        self.rtcIceServers.append(el3)
         config.iceServers = self.rtcIceServers
         self.peerConnection = factory?.peerConnection(with: config, constraints: constraints, delegate: self)
         
-        _ = self.createAudioSender()
-        _ = self.createVideoSender()
+        self.createAudioSender()
+        self.createVideoSender()
         
     }
     
@@ -438,39 +483,115 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         let constraints = RTCMediaConstraints.init(mandatoryConstraints: mandatoryContraints, optionalConstraints: nil)
         return constraints
     }
+
     
-    func createVideoSender() -> RTCRtpSender{
-        let sender = peerConnection?.sender(withKind: kRTCMediaStreamTrackKindVideo, streamId: MEDIA_SREAM_ID)
-        localVideoTrack = self.createLocalVideoTrack()
-        if (localVideoTrack != nil) {
-            sender?.track = localVideoTrack
-            self.delegate?.didReceiveLocalVideoTrack(self, localVideoTrack: localVideoTrack!)
+    fileprivate func createVideoSender(){
+        
+        assert(self.videoSender == nil, "\(#function) should be called once.")
+        
+        #if ((arch(i386) || arch(x86_64)) && os(iOS))
+            // We are in the simulator
+            print("Can't obtain video stream on simulator. Use a real device instead")
+            return
+        #endif
+        
+        let cameraConstraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
+        let videoSource = factory?.avFoundationVideoSource(with: cameraConstraints)
+        self.videoCaptureSession = videoSource?.captureSession
+        videoSource?.useBackCamera = false
+        //videoCaptureSession?.startRunning()
+        
+        let localVideoTrack = factory?.videoTrack(with: videoSource!, trackId: VIDEO_TRACK_ID)
+        self.localVideoTrack = localVideoTrack
+        
+        //localVideoTrack?.isEnabled = false
+        self.delegate?.didReceiveLocalVideoTrack(self, localVideoTrack: localVideoTrack!)
+        
+        guard let videoSender = peerConnection?.sender(withKind: kRTCMediaStreamTrackKindVideo, streamId: MEDIA_SREAM_ID) else
+        {
+            print("Error obtaining the local video stream")
+            return
         }
-        return sender!
+        
+        videoSender.track = localVideoTrack
+        self.videoSender = videoSender
     }
     
-    func createAudioSender() -> RTCRtpSender {
+    fileprivate func createAudioSender() {
+        
+        assert(self.audioSender == nil, "\(#function) should be called once")
+        
         let constraints = self.defaultMediaAudioConstraints()
         let source = factory?.audioSource(with: constraints)
         let track = factory?.audioTrack(with: source!, trackId: AUDIO_TRACK_ID)
-        let sender = peerConnection?.sender(withKind: kRTCMediaStreamTrackKindAudio, streamId: MEDIA_SREAM_ID)
-        sender?.track = track!
-        return sender!
+        self.localAudioTrack = track
+        guard let audioSender = peerConnection?.sender(withKind: kRTCMediaStreamTrackKindAudio, streamId: MEDIA_SREAM_ID) else
+        {
+            print("Error obtaining the local audio stream")
+            return
+        }
+        audioSender.track = track
+        self.audioSender = audioSender
     }
     
-    
-    func createLocalVideoTrack() -> RTCVideoTrack?{
-        var _localVideoTrack: RTCVideoTrack? = nil
-        // Check if we are not on the simulator
-        #if !((arch(i386) || arch(x86_64)) && os(iOS))
-            let source = factory?.avFoundationVideoSource(with: self.cameraConstraints)
+    public func setLocalVideoEnabled(enabled: Bool){
+        WebRTCClient.signalingQueue.async {
+            guard self.peerConnection != nil else {
+                print("Nil peerConnection")
+                return
+            }
+            guard let localVideoTrack = self.localVideoTrack else {
+                print("Nil localVideoTrack")
+                return
+            }
+            guard let videoCaptureSession = self.videoCaptureSession else {
+                print("Nil videoCaptureSession")
+                return
+            }
             
-            _localVideoTrack = factory?.videoTrack(with: source!, trackId: VIDEO_TRACK_ID)
-        #endif
-        return _localVideoTrack
+            localVideoTrack.isEnabled = enabled
+            if enabled {
+                videoCaptureSession.startRunning()
+            } else {
+                videoCaptureSession.stopRunning()
+            }
+        }
     }
-
     
+    public func setAudioEnabled(enabled: Bool){
+        WebRTCClient.signalingQueue.async {
+            guard self.peerConnection != nil else {
+                print("Nil peerConnection")
+                return
+            }
+            guard let audioTrack = self.localAudioTrack else {
+                print("Nil audioTrack")
+                return
+            }
+            
+            audioTrack.isEnabled = enabled
+        }
+        
+    }
+    
+    private func terminateInternal(){
+        localAudioTrack?.isEnabled = false
+        localVideoTrack?.isEnabled = false
+        
+        audioSender = nil
+        videoSender = nil
+        localAudioTrack = nil
+        localVideoTrack = nil
+        remoteVideoTrack = nil
+        
+        peerConnection?.delegate = nil
+        peerConnection?.close()
+        peerConnection = nil
+        
+        delegate = nil
+    }
+    
+    // MARK: Peer Connection Delegate
     /* Peer Connection Delegate */
     
     /** Called when the SignalingState changed. */
@@ -482,7 +603,11 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     /** Called when media is received on a new stream from remote peer. */
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream){
         print("peerConnection didAdd stream", stream)
-        
+        guard stream.videoTracks.count > 0 else {
+            print ("No videoTrack received")
+            return
+        }
+        self.remoteVideoTrack = stream.videoTracks[0]
         self.delegate?.didReceiveRemoteVideoTrack(self, remoteVideoTrack: stream.videoTracks[0])
     }
     
@@ -490,7 +615,11 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     /** Called when a remote peer closes a stream. */
     public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream){
         print("peerConnection didRemove stream", stream)
-        
+        guard stream.videoTracks.count > 0 else {
+            print ("No videoTrack received")
+            return
+        }
+        self.remoteVideoTrack = nil
         self.delegate?.didRemoveRemoteVideoTrack(self, remoteVideoTrack: stream.videoTracks[0])
     }
     
@@ -505,6 +634,25 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState){
         print("peerConnection didChange newState RTCIceConnectionState", newState)
         
+        WebRTCClient.signalingQueue.async {
+            guard self.peerConnection != nil else {
+                print("PeerConnection nil")
+                return
+            }
+            
+            switch newState {
+            case .connected, .completed :
+                debugPrint("RTCIceConnectionState didChange connected ")
+            case .disconnected:
+                debugPrint("RTCIceConnectionState didChange disconnected ")
+            case .failed:
+                debugPrint("RTCIceConnectionState didChange failed ")
+            default:
+                debugPrint("RTCIceConnectionState didChange", newState)
+            }
+            
+        }
+        
         self.delegate?.didChangeConnectionState(self, state: newState)
     }
     
@@ -517,32 +665,26 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     
     /** New ice candidate has been found. */
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate){
-        print("peerConnection didGenerate candidate", candidate)
         
-        // Send a message
+        WebRTCClient.signalingQueue.async {
         
-        let sdpAnswer = ["ice": ["candidate": candidate.sdp, "sdpMLineIndex": candidate.sdpMLineIndex, "sdpMid": candidate.sdpMid ?? "none"]]
+            // Send a message
         
-        let jsonData = [
-            "publicRoom": [ "roomName": self.currentRoom],
-            "member": self.currentRemoteUserId,
-            "metadata": ["type":"icecandidate"],
-            "value": sdpAnswer
-            ] as [String : Any]
+            let sdpAnswer = ["icecandidate":["candidate": candidate.sdp, "sdpMLineIndex": candidate.sdpMLineIndex, "sdpMid": candidate.sdpMid ?? "none"]]
         
-        guard let _sendMessageInput = sendMessageInput(json: jsonData) else {
-            print ("data input problem")
-            return
-        }
+            let jsonData = [
+                "webrtcRoom": [ "roomName": self.currentRoom],
+                "member": self.currentRemoteUserId,
+                "metadata": ["type":"icecandidate"],
+                "value": sdpAnswer
+                ] as [String : Any]
         
-        self.webRTCPromiseApi?.sendMessage(parameters: _sendMessageInput )
-            .then { result -> Void in
-                
-                print ("sendMessage RTCIceCandidate", result)
-                
+            guard let _sendMessageInput = Webrtc.SendMessageInput(json: jsonData) else {
+                print ("data input problem")
+                return
             }
-            .catch { error in
-                print ("sendMessage sdp answer error", error)
+            self.webRTCAsyncApi?.sendMessage(parameters: _sendMessageInput)
+            
         }
         
     }

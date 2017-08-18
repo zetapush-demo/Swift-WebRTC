@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		35AFD5E51F3B3FDB00427AB9 /* DeployAsyncApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AFD5E11F3B3FDB00427AB9 /* DeployAsyncApi.swift */; };
+		35AFD5E61F3B3FDB00427AB9 /* DeployAsyncApiListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AFD5E21F3B3FDB00427AB9 /* DeployAsyncApiListener.swift */; };
+		35AFD5E71F3B3FDB00427AB9 /* DeployPromiseApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AFD5E31F3B3FDB00427AB9 /* DeployPromiseApi.swift */; };
+		35AFD5E81F3B3FDB00427AB9 /* DeployStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AFD5E41F3B3FDB00427AB9 /* DeployStructs.swift */; };
 		35F1A7E01EDC5A010049D245 /* Pods_WebRTCDemo.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9927A43667AEEDC1A0F39557 /* Pods_WebRTCDemo.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		35F1A80C1EDF044B0049D245 /* WebRTCClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A80B1EDF044B0049D245 /* WebRTCClient.swift */; };
 		35F1A8101EE0430F0049D245 /* WebRTCClientDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A80F1EE0430F0049D245 /* WebRTCClientDelegate.swift */; };
-		35F1A8151EF9521A0049D245 /* WebRTCAsyncApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A8111EF9521A0049D245 /* WebRTCAsyncApi.swift */; };
-		35F1A8161EF9521A0049D245 /* WebRTCAsyncApiListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A8121EF9521A0049D245 /* WebRTCAsyncApiListener.swift */; };
-		35F1A8171EF9521A0049D245 /* WebRTCPromiseApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A8131EF9521A0049D245 /* WebRTCPromiseApi.swift */; };
-		35F1A8181EF9521A0049D245 /* WebRTCStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A8141EF9521A0049D245 /* WebRTCStructs.swift */; };
 		35F1A81A1EF96FFE0049D245 /* WebRTCAPIDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F1A8191EF96FFE0049D245 /* WebRTCAPIDelegate.swift */; };
 		35FCCD761ED48B2300944607 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FCCD751ED48B2300944607 /* AppDelegate.swift */; };
 		35FCCD781ED48B2300944607 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FCCD771ED48B2300944607 /* ViewController.swift */; };
@@ -39,6 +39,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		35AFD5E11F3B3FDB00427AB9 /* DeployAsyncApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeployAsyncApi.swift; sourceTree = "<group>"; };
+		35AFD5E21F3B3FDB00427AB9 /* DeployAsyncApiListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeployAsyncApiListener.swift; sourceTree = "<group>"; };
+		35AFD5E31F3B3FDB00427AB9 /* DeployPromiseApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeployPromiseApi.swift; sourceTree = "<group>"; };
+		35AFD5E41F3B3FDB00427AB9 /* DeployStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeployStructs.swift; sourceTree = "<group>"; };
 		35F1A7DD1EDC25D80049D245 /* WebRTC */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = WebRTC; path = Pods/WebRTC/WebRTC.framework/WebRTC; sourceTree = "<group>"; };
 		35F1A7E11EDEACDD0049D245 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		35F1A7E21EDEB2340049D245 /* RTCAudioSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTCAudioSource.h; path = WebRTC/RTCAudioSource.h; sourceTree = "<group>"; };
@@ -82,10 +86,6 @@
 		35F1A8081EDEB2340049D245 /* WebRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebRTC.h; path = WebRTC/WebRTC.h; sourceTree = "<group>"; };
 		35F1A80B1EDF044B0049D245 /* WebRTCClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebRTCClient.swift; sourceTree = "<group>"; };
 		35F1A80F1EE0430F0049D245 /* WebRTCClientDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebRTCClientDelegate.swift; sourceTree = "<group>"; };
-		35F1A8111EF9521A0049D245 /* WebRTCAsyncApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebRTCAsyncApi.swift; path = com_zetapush_tuto_webRTC/WebRTCAsyncApi.swift; sourceTree = "<group>"; };
-		35F1A8121EF9521A0049D245 /* WebRTCAsyncApiListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebRTCAsyncApiListener.swift; path = com_zetapush_tuto_webRTC/WebRTCAsyncApiListener.swift; sourceTree = "<group>"; };
-		35F1A8131EF9521A0049D245 /* WebRTCPromiseApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebRTCPromiseApi.swift; path = com_zetapush_tuto_webRTC/WebRTCPromiseApi.swift; sourceTree = "<group>"; };
-		35F1A8141EF9521A0049D245 /* WebRTCStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebRTCStructs.swift; path = com_zetapush_tuto_webRTC/WebRTCStructs.swift; sourceTree = "<group>"; };
 		35F1A8191EF96FFE0049D245 /* WebRTCAPIDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebRTCAPIDelegate.swift; sourceTree = "<group>"; };
 		35FCCD721ED48B2300944607 /* WebRTCDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebRTCDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35FCCD751ED48B2300944607 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -120,6 +120,17 @@
 				3E0FCF68E47D9A56E76A19CB /* Pods-WebRTCDemo.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		35AFD5E01F3B3FDB00427AB9 /* fr_leocare_core_deploy */ = {
+			isa = PBXGroup;
+			children = (
+				35AFD5E11F3B3FDB00427AB9 /* DeployAsyncApi.swift */,
+				35AFD5E21F3B3FDB00427AB9 /* DeployAsyncApiListener.swift */,
+				35AFD5E31F3B3FDB00427AB9 /* DeployPromiseApi.swift */,
+				35AFD5E41F3B3FDB00427AB9 /* DeployStructs.swift */,
+			);
+			path = fr_leocare_core_deploy;
 			sourceTree = "<group>";
 		};
 		35F1A8091EDEB2450049D245 /* WebRTC */ = {
@@ -171,10 +182,6 @@
 		35F1A80A1EDF041E0049D245 /* ZetaPushWebRTC */ = {
 			isa = PBXGroup;
 			children = (
-				35F1A8111EF9521A0049D245 /* WebRTCAsyncApi.swift */,
-				35F1A8121EF9521A0049D245 /* WebRTCAsyncApiListener.swift */,
-				35F1A8131EF9521A0049D245 /* WebRTCPromiseApi.swift */,
-				35F1A8141EF9521A0049D245 /* WebRTCStructs.swift */,
 				35F1A80B1EDF044B0049D245 /* WebRTCClient.swift */,
 				35F1A80F1EE0430F0049D245 /* WebRTCClientDelegate.swift */,
 				35F1A8191EF96FFE0049D245 /* WebRTCAPIDelegate.swift */,
@@ -203,6 +210,7 @@
 		35FCCD741ED48B2300944607 /* WebRTCDemo */ = {
 			isa = PBXGroup;
 			children = (
+				35AFD5E01F3B3FDB00427AB9 /* fr_leocare_core_deploy */,
 				35F1A80A1EDF041E0049D245 /* ZetaPushWebRTC */,
 				35F1A8091EDEB2450049D245 /* WebRTC */,
 				35FCCD751ED48B2300944607 /* AppDelegate.swift */,
@@ -305,9 +313,26 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-WebRTCDemo/Pods-WebRTCDemo-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Gloss/Gloss.framework",
+				"${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework",
+				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
+				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${PODS_ROOT}/WebRTC/WebRTC.framework",
+				"${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework",
+				"${BUILT_PRODUCTS_DIR}/ZetaPushSwift/ZetaPushSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Gloss.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjcExceptionBridging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/XCGLogger.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ZetaPushSwift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -320,13 +345,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WebRTCDemo-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D7E3D18E9B1D25F68AB7C7F1 /* [CP] Copy Pods Resources */ = {
@@ -351,15 +379,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				35F1A8161EF9521A0049D245 /* WebRTCAsyncApiListener.swift in Sources */,
-				35F1A8151EF9521A0049D245 /* WebRTCAsyncApi.swift in Sources */,
-				35F1A8171EF9521A0049D245 /* WebRTCPromiseApi.swift in Sources */,
 				35FCCD781ED48B2300944607 /* ViewController.swift in Sources */,
 				35F1A80C1EDF044B0049D245 /* WebRTCClient.swift in Sources */,
-				35F1A8181EF9521A0049D245 /* WebRTCStructs.swift in Sources */,
+				35AFD5E51F3B3FDB00427AB9 /* DeployAsyncApi.swift in Sources */,
 				35F1A81A1EF96FFE0049D245 /* WebRTCAPIDelegate.swift in Sources */,
+				35AFD5E61F3B3FDB00427AB9 /* DeployAsyncApiListener.swift in Sources */,
 				35F1A8101EE0430F0049D245 /* WebRTCClientDelegate.swift in Sources */,
 				35FCCD761ED48B2300944607 /* AppDelegate.swift in Sources */,
+				35AFD5E81F3B3FDB00427AB9 /* DeployStructs.swift in Sources */,
+				35AFD5E71F3B3FDB00427AB9 /* DeployPromiseApi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

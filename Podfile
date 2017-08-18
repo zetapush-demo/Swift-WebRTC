@@ -6,6 +6,6 @@ target 'WebRTCDemo' do
   use_frameworks!
 
   # Pods for WebRTCDemo
-  pod "WebRTC"
-  pod "ZetaPushSwift"
+  pod 'WebRTC', '~> 60.10.18252'
+  pod 'ZetaPushSwift'
 end
