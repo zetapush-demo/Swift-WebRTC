@@ -418,6 +418,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         
         // Rien à faire
         debugPrint("terminateWebRtcCall")
+        self.disconnect()
     }
     
     public func closeRoom(_client: ClientHelper, _ parameter: Webrtc.CloseRoomCompletion){
