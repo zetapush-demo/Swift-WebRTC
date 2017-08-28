@@ -61,7 +61,7 @@ open class WebRTCAPIListenerDelegate: DeployAsyncApiListener{
 }
 
 // High level class to use WebRTC
-open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate {
+open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate, AVCapturePhotoCaptureDelegate {
  
     open weak var delegate: WebRTCClientDelegate?
     
@@ -82,6 +82,8 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
     private var remoteVideoTrack: RTCVideoTrack?
     private var videoSender: RTCRtpSender?
     private var audioSender: RTCRtpSender?
+    
+    private var photoOutput = AVCapturePhotoOutput()
     
     var videoCaptureSession: AVCaptureSession?
     
@@ -163,6 +165,16 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         }
     }
     
+    public func takePhoto(){
+        let photoSettings = AVCapturePhotoSettings()
+        photoSettings.isHighResolutionPhotoEnabled = true
+        //photoSettings.flashMode = .auto
+        
+        if !photoSettings.availablePreviewPhotoPixelFormatTypes.isEmpty {
+            photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.availablePreviewPhotoPixelFormatTypes.first!]
+        }
+        photoOutput.capturePhoto(with: photoSettings, delegate: self)
+    }
     private func disconnect(){
         let jsonData = [
             "webrtcRoom": [ "roomName": self.currentRoom]
@@ -193,6 +205,24 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         
         self.delegate?.didChangeState(self, state: WebRTCClientClientState.webRTCClientStateDisconnected)
     }
+    
+    
+    // MARK: - AVCapturePhotoCaptureDelegate
+    public func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
+        
+        if let error = error {
+            debugPrint("Error capturing photo: ", error)
+        } else {
+            if let sampleBuffer = photoSampleBuffer, let previewBuffer = previewPhotoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewBuffer){
+                
+                if let image = UIImage(data: dataImage) {
+                    debugPrint(":) :) :) :) Image décodée avec succes", image)
+                }
+            }
+            
+        }
+    }
+    
     
     // MARK: - ZetaPush
     
@@ -498,9 +528,18 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate 
         
         let cameraConstraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
         let videoSource = factory?.avFoundationVideoSource(with: cameraConstraints)
+        
         self.videoCaptureSession = videoSource?.captureSession
+        self.photoOutput.isHighResolutionCaptureEnabled = true
+        
         videoSource?.useBackCamera = false
         //videoCaptureSession?.startRunning()
+        
+        if (self.videoCaptureSession?.canAddOutput(photoOutput))!{
+            self.videoCaptureSession?.addOutput(photoOutput)
+        } else {
+            debugPrint("====================== Can't add output")
+        }
         
         let localVideoTrack = factory?.videoTrack(with: videoSource!, trackId: VIDEO_TRACK_ID)
         self.localVideoTrack = localVideoTrack

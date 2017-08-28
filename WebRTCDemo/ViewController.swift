@@ -162,7 +162,7 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     }
     
     @IBAction func HangupButtonPressed(_ sender: Any) {
-        webRTCClient?.stopVisio()
+        webRTCClient?.takePhoto()
     }
     
     func videoView(_ videoView: RTCEAGLVideoView, didChangeVideoSize size: CGSize) {
