@@ -33,7 +33,8 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     @IBOutlet weak var remoteViewRightConstraint: NSLayoutConstraint!
     
     
-    let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "dJ7m3bQn")
+    //let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "dJ7m3bQn")
+    let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "M7E7qP7x")
     // let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "JMrH4ScI")
     
     var zetaPushMacroService: ZetaPushMacroService?
@@ -59,7 +60,7 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
         self.localView?.delegate=self
         //zetaPushClient.setLogLevel(logLevel: .verbose)
         //zetaPushClient.setCredentials(login: "android_test", password:"password")
-        zetaPushClient.setCredentials(login: "michel.bosse.leocare@yopmail.com", password:"P4ssW0rd")
+        zetaPushClient.setCredentials(login: "robert.doe.leocare@yopmail.com", password:"P4ssW0rd")
         zetaPushClient.onSuccessfulHandshake = onSuccessfulHandshake
         // zetaPushMacroService = ZetaPushMacroService(zetaPushClient)
         // zetaPushMacroService?.onMacroError = onMacroError

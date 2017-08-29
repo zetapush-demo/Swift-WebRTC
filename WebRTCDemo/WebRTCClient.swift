@@ -128,8 +128,17 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
     // Je fais un joinRoom 
     
     public func createRoomMemberInvitation(_client: ClientHelper, _ parameter: Room.CreateRoomMemberInvitationCompletion){
+        debugPrint(" = = = = = = = = = createRoomMemberInvitation", parameter.result)
+        guard let room = parameter.result.room else {
+            debugPrint("No room for result")
+            return
+        }
+        debugPrint("createRoomMemberInvitation", room)
         
-        guard let roomName = parameter.result.room?.name else {return}
+        guard let roomName = parameter.result.room?.room?.name else {
+            debugPrint("Error in createRoomMemberInvitation, no room found")
+            return
+        }
     
         debugPrint(" = = = = = = = = = createRoomMemberInvitation", roomName)
         let jsonData = [
@@ -470,6 +479,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         // TODO - Coder la prise de photo ici
         
         debugPrint("captureContractAttachment")
+        self.takePhoto()
     }
     
     // MARK: - WebRTC

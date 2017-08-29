@@ -3019,6 +3019,25 @@ public struct CreateRoomMemberInvitationInput : Glossy {
 	}
 }
 
+/**
+     Patch for sprint 2 - will be corrected in sprint 3
+     
+*/
+    
+    public struct CreateRoomMemberRoom: Glossy {
+        let room: Room?
+        
+        public init?(json: JSON) {
+            self.room = "room" <~~ json
+        }
+        
+        public func toJSON() -> JSON? {
+            return jsonify([
+                "room" ~~> self.room
+                ])
+        }
+    }
+    
 /** Result of the call to macro 'createRoomMemberInvitation' */
 	/**
 	 * All args constructor
@@ -3029,7 +3048,7 @@ public struct CreateRoomMemberInvitationInput : Glossy {
 	 *         not documented
 	**/
 public struct CreateRoomMemberInvitationOutput : Glossy {
-	let room: Room?
+	let room: CreateRoomMemberRoom?
 	let invitation: Invitation?
 
 	public init?(json: JSON) {
