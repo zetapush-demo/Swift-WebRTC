@@ -24,5 +24,6 @@ public protocol WebRTCClientDelegate: NSObjectProtocol {
     func didReceiveLocalVideoTrack(_ client:WebRTCClient, localVideoTrack: RTCVideoTrack)
     func didReceiveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack)
     func didRemoveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack)
+    func didPhotoCapture(_ client:WebRTCClient, image: UIImage)
 }
 

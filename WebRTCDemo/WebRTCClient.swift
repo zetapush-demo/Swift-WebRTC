@@ -173,6 +173,12 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         if !photoSettings.availablePreviewPhotoPixelFormatTypes.isEmpty {
             photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.availablePreviewPhotoPixelFormatTypes.first!]
         }
+        if (self.videoCaptureSession?.canAddOutput(photoOutput))!{
+            self.videoCaptureSession?.addOutput(photoOutput)
+        } else {
+            debugPrint("====================== Can't add output")
+        }
+        
         photoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
     private func disconnect(){
@@ -217,6 +223,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
                 
                 if let image = UIImage(data: dataImage) {
                     debugPrint(":) :) :) :) Image décodée avec succes", image)
+                    self.delegate?.didPhotoCapture(self, image: image)
                 }
             }
             
@@ -535,11 +542,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         videoSource?.useBackCamera = false
         //videoCaptureSession?.startRunning()
         
-        if (self.videoCaptureSession?.canAddOutput(photoOutput))!{
-            self.videoCaptureSession?.addOutput(photoOutput)
-        } else {
-            debugPrint("====================== Can't add output")
-        }
+        
         
         let localVideoTrack = factory?.videoTrack(with: videoSource!, trackId: VIDEO_TRACK_ID)
         self.localVideoTrack = localVideoTrack

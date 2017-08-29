@@ -18,6 +18,8 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     @IBOutlet weak var hangupButton: UIButton!
     @IBOutlet weak var audioButton: UIButton!
 
+    @IBOutlet weak var imageView: UIImageView!
+    
     @IBOutlet weak var localViewBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var localViewRightConstraint: NSLayoutConstraint!
     @IBOutlet weak var localViewWidthConstraint: NSLayoutConstraint!
@@ -119,7 +121,6 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     }
     
     func didReceiveRemoteVideoTrack(_ client:WebRTCClient, remoteVideoTrack: RTCVideoTrack){
-        print(":) :) :) :) :) didReceiveRemoteVideoTrack")
         /*
         self.remoteVideoTrack?.remove(self.remoteView)
         self.remoteView?.renderFrame(nil)
@@ -163,6 +164,10 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     
     @IBAction func HangupButtonPressed(_ sender: Any) {
         webRTCClient?.takePhoto()
+    }
+    
+    func didPhotoCapture(_ client:WebRTCClient, image: UIImage){
+        self.imageView.image = image
     }
     
     func videoView(_ videoView: RTCEAGLVideoView, didChangeVideoSize size: CGSize) {

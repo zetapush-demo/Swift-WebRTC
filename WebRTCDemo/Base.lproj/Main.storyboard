@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -79,6 +79,10 @@
                                     <constraint firstAttribute="height" constant="160" id="y09-AV-jqf"/>
                                 </constraints>
                             </view>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gGL-NG-dXV">
+                                <rect key="frame" x="20" y="480" width="216" height="180"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -97,6 +101,7 @@
                         <outlet property="LocalViewWidthConstraint" destination="hYx-bk-aXU" id="WDN-QH-pyD"/>
                         <outlet property="audioButton" destination="qT1-iG-ky4" id="DEP-KS-k2o"/>
                         <outlet property="hangupButton" destination="w7n-aO-0US" id="a0t-BM-uZt"/>
+                        <outlet property="imageView" destination="gGL-NG-dXV" id="A9f-SQ-Avf"/>
                         <outlet property="localView" destination="vXR-5T-i5h" id="7r1-p0-mPA"/>
                         <outlet property="localViewBottomConstraint" destination="vfp-qA-QQR" id="cJ8-uT-aeN"/>
                         <outlet property="localViewHeightConstraint" destination="qnW-HE-Ffm" id="16B-YW-dBL"/>
