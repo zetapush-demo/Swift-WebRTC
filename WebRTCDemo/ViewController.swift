@@ -35,7 +35,7 @@ class ViewController: UIViewController, RTCEAGLVideoViewDelegate, WebRTCClientDe
     
     //let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "dJ7m3bQn")
     let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "M7E7qP7x")
-    // let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "JMrH4ScI")
+    //let zetaPushClient:ZetaPushSmartClient = ZetaPushSmartClient(sandboxId: "JMrH4ScI")
     
     var zetaPushMacroService: ZetaPushMacroService?
     

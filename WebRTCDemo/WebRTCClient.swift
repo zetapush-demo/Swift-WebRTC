@@ -128,19 +128,17 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
     // Je fais un joinRoom 
     
     public func createRoomMemberInvitation(_client: ClientHelper, _ parameter: Room.CreateRoomMemberInvitationCompletion){
-        debugPrint(" = = = = = = = = = createRoomMemberInvitation", parameter.result)
         guard let room = parameter.result.room else {
-            debugPrint("No room for result")
+            debugPrint("No room in result for createRoomMemberInvitation")
             return
         }
-        debugPrint("createRoomMemberInvitation", room)
+        debugPrint("createRoomMemberInvitation, roomName ", room)
         
         guard let roomName = parameter.result.room?.room?.name else {
             debugPrint("Error in createRoomMemberInvitation, no room found")
             return
         }
     
-        debugPrint(" = = = = = = = = = createRoomMemberInvitation", roomName)
         let jsonData = [
             "webrtcRoom": ["roomName": roomName]
         ]
@@ -185,7 +183,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         if (self.videoCaptureSession?.canAddOutput(photoOutput))!{
             self.videoCaptureSession?.addOutput(photoOutput)
         } else {
-            debugPrint("====================== Can't add output")
+            debugPrint("Can't add output")
         }
         
         photoOutput.capturePhoto(with: photoSettings, delegate: self)
@@ -214,9 +212,6 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         currentRemoteUserId = ""
         
         self.delegate?.didRemoveRemoteVideoTrack(self, remoteVideoTrack: self.localVideoTrack!)
-        //self.factory?.stopAecDump()
-        //self.peerConnection?.stopRtcEventLog()
-        
         
         self.delegate?.didChangeState(self, state: WebRTCClientClientState.webRTCClientStateDisconnected)
     }
@@ -358,7 +353,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
             WebRTCClient.signalingQueue.async {
                 self.peerConnection?.setRemoteDescription(RTCSessionDescription(type: sdpType, sdp: sdpValue), completionHandler: { (error) in
                 
-                    print("Fin SDP")
+                    debugPrint("Fin SDP")
                 
                     // Create an offer
                     self.createAnswer(destination: sender!)
@@ -389,20 +384,19 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
             }
             WebRTCClient.signalingQueue.async {
                 self.peerConnection?.setRemoteDescription(RTCSessionDescription(type: sdpType, sdp: sdpValue), completionHandler: { (error) in
-                //Erreur de descriptioin
-                    print("fin SDP")
+                    debugPrint("fin SDP")
                 })
             }
         case "icecandidate":
-            print("<====== Receive icecandidate")
             // Add the remote description
             let value = parameter.result.message?.value
             var iceCandidate = ""
             var sdpMLineIndex: Int32 = 0
             var sdpMid = ""
             var iceDict: NSDictionary
-            if value?.object(forKey: "ice") != nil{
-                iceDict = value?.value(forKey: "ice") as! NSDictionary
+            
+            if value?.object(forKey: "icecandidate") != nil{
+                iceDict = value?.value(forKey: "icecandidate") as! NSDictionary
                 
                 if iceDict.object(forKey: "candidate") != nil{
                     iceCandidate = iceDict.value(forKey: "candidate") as! String
@@ -417,6 +411,8 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
                 WebRTCClient.signalingQueue.async {
                     self.peerConnection?.add(RTCIceCandidate(sdp: iceCandidate, sdpMLineIndex: sdpMLineIndex, sdpMid: sdpMid))
                 }
+            } else {
+                debugPrint("Error in sendRoomMessageToMember for iceCandidate. IceCandidate value nil")
             }
             
         default:
@@ -494,16 +490,20 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         
         self.state = WebRTCClientClientState.webRTCClientStateConnected
         let constraints = defaultPeerConnectionConstraints()
-        let config = RTCConfiguration.init()
-        //, "turn:turn.zpush.io:443?transport=udp", "turn:turn.zpush.io:443?transport=tcp"
-        let el = RTCIceServer(urlStrings: ["stun:turn.zpush.io:443"], username: "lesateliers", credential: "c4878XzgQ54NhjsSNX")
-        let el2 = RTCIceServer(urlStrings: ["turn:turn.zpush.io:443?transport=udp"], username: "lesateliers", credential: "c4878XzgQ54NhjsSNX")
-        let el3 = RTCIceServer(urlStrings: ["turn:turn.zpush.io:443?transport=tcp"], username: "lesateliers", credential: "c4878XzgQ54NhjsSNX")
         
-        self.rtcIceServers.append(el)
-        self.rtcIceServers.append(el2)
-        self.rtcIceServers.append(el3)
-        config.iceServers = self.rtcIceServers
+        let config = RTCConfiguration.init()
+        config.tcpCandidatePolicy = RTCTcpCandidatePolicy.disabled
+        config.bundlePolicy = RTCBundlePolicy.maxBundle
+        config.rtcpMuxPolicy = RTCRtcpMuxPolicy.require
+        
+        config.iceServers.append(RTCIceServer(urlStrings: ["stun:stun.l.google.com:19302"]))
+        config.iceServers.append(RTCIceServer(urlStrings: ["stun:stun1.l.google.com:19302"]))
+        config.iceServers.append(RTCIceServer(urlStrings: ["stun:stun2.l.google.com:19302"]))
+        config.iceServers.append(RTCIceServer(urlStrings: ["stun:stun3.l.google.com:19302"]))
+        config.iceServers.append(RTCIceServer(urlStrings: ["stun:stun4.l.google.com:19302"]))
+        
+        debugPrint("peerConnection config", config)
+        
         self.peerConnection = factory?.peerConnection(with: config, constraints: constraints, delegate: self)
         
         self.createAudioSender()
@@ -550,9 +550,6 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         self.photoOutput.isHighResolutionCaptureEnabled = true
         
         videoSource?.useBackCamera = false
-        //videoCaptureSession?.startRunning()
-        
-        
         
         let localVideoTrack = factory?.videoTrack(with: videoSource!, trackId: VIDEO_TRACK_ID)
         self.localVideoTrack = localVideoTrack
