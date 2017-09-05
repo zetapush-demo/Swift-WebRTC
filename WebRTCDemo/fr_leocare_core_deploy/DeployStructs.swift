@@ -3048,7 +3048,7 @@ public struct CreateRoomMemberInvitationInput : Glossy {
 	 *         not documented
 	**/
 public struct CreateRoomMemberInvitationOutput : Glossy {
-	let room: CreateRoomMemberRoom?
+	let room: Room?
 	let invitation: Invitation?
 
 	public init?(json: JSON) {

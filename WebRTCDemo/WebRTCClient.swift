@@ -134,7 +134,7 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         }
         debugPrint("createRoomMemberInvitation, roomName ", room)
         
-        guard let roomName = parameter.result.room?.room?.name else {
+        guard let roomName = parameter.result.room?.name else {
             debugPrint("Error in createRoomMemberInvitation, no room found")
             return
         }
@@ -188,6 +188,11 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         
         photoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
+    
+    public func swapCamera(){
+        
+    }
+    
     private func disconnect(){
         let jsonData = [
             "webrtcRoom": [ "roomName": self.currentRoom]
@@ -549,9 +554,10 @@ open class WebRTCClient: NSObject, RTCPeerConnectionDelegate, WebRTCAPIDelegate,
         self.videoCaptureSession = videoSource?.captureSession
         self.photoOutput.isHighResolutionCaptureEnabled = true
         
-        videoSource?.useBackCamera = false
+        videoSource?.useBackCamera = true
         
         let localVideoTrack = factory?.videoTrack(with: videoSource!, trackId: VIDEO_TRACK_ID)
+        
         self.localVideoTrack = localVideoTrack
         
         //localVideoTrack?.isEnabled = false
